@@ -1,0 +1,10 @@
+transformers>=4.51.0
+torch>=2.2.0
+gradio>=4.40.0
+spaces>=0.28.0
+yt-dlp>=2024.11.0
+tavily-python>=0.3.0
+accelerate>=0.30.0
+sentencepiece
+protobuf
+python-dotenv
