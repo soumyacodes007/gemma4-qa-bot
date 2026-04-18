@@ -18,7 +18,7 @@ import torch
 import yt_dlp
 from dotenv import load_dotenv
 from tavily import TavilyClient
-from transformers import AutoModelForMultimodalLM, AutoProcessor
+from transformers import AutoProcessor, Gemma4ForConditionalGeneration
 
 load_dotenv()
 
@@ -36,7 +36,7 @@ GENERATE_MAX_TOKENS = 768
 
 logger.info("Loading Gemma 4 E2B for ZeroGPU Spaces.")
 processor = AutoProcessor.from_pretrained(MODEL_ID)
-model = AutoModelForMultimodalLM.from_pretrained(
+model = Gemma4ForConditionalGeneration.from_pretrained(
     MODEL_ID,
     torch_dtype=torch.bfloat16,
     device_map="auto",
