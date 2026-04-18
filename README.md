@@ -1,158 +1,86 @@
 ---
 title: YouTube Shorts Audio QA + Fact Checker
-emoji: 🎙
-colorFrom: purple
+emoji: "🎙️"
+colorFrom: green
 colorTo: blue
 sdk: gradio
 sdk_version: "4.44.1"
 app_file: app.py
 pinned: true
 license: apache-2.0
-short_description: Fact-check YouTube Shorts with Gemma 4 + Tavily
+short_description: Fact-check short-form audio with Gemma 4 E2B and Tavily.
 tags:
   - gemma
   - audio
   - fact-checking
-  - agents
   - multimodal
-  - tool-calling
-  - yt-dlp
   - tavily
+  - gradio
 ---
 
-# 🎙 YouTube Shorts Audio QA + Fact Checker
+# YouTube Shorts Audio QA + Fact Checker
 
-> **First open-source demo** combining **Gemma 4 E2B native audio understanding** + **agentic Tavily tool calling** in a single, no-ASR pipeline.
+This Space is built for **Hugging Face Spaces ZeroGPU** and uses:
 
----
+- `google/gemma-4-E2B-it` for audio understanding
+- `Tavily` for claim verification in fact-check mode
+- `yt-dlp` + `ffmpeg` for YouTube audio extraction and audio normalization
 
-## What this does
+## What it does
 
-Paste a YouTube Shorts URL (or upload an audio file). The app:
+You can either:
 
-1. 📥 Downloads **audio-only** via `yt-dlp` (no video processing overhead)
-2. 🧠 Feeds raw WAV to **Gemma 4 E2B** — which natively understands speech (no Whisper needed)
-3. 🔍 Gemma extracts **factual claims** and autonomously calls **Tavily search** per claim
-4. ✅❌⚠️ Returns a **per-claim verdict** with real source URLs
-5. 💬 Or — ask any **freeform QA question** about what was said
+- paste a YouTube Shorts URL
+- upload an audio file
 
----
+Then choose one mode:
 
-## Why Gemma 4 E2B?
+- `Fact Check`: extracts factual claims and verifies them with Tavily
+- `QA`: answers a question using only the audio content
 
-**Gemma 4 E2B** (2 billion parameters) is the smaller, more efficient version that:
-- ✅ Runs on **CPU basic (free tier)** on Hugging Face Spaces
-- ✅ Still supports **native audio understanding**
-- ✅ Has **tool calling** capabilities
-- ✅ Perfect for demos and prototypes
+## Why Gemma 4 E2B
 
-For production with higher traffic, consider upgrading to **Gemma 4 E4B** (4B) with GPU.
+This project is tuned for Spaces deployment. `Gemma 4 E2B` is the practical choice here because it keeps the demo lighter while still supporting audio input and tool use. The app is structured around `spaces.GPU` so it works with **ZeroGPU**.
 
----
+## Required Space secrets
 
-## What this does
+Set these in your Space settings:
 
-Paste a YouTube Shorts URL (or upload an audio file). The app:
+- `HF_TOKEN`
+- `TAVILY_API_KEY`
 
-1. 📥 Downloads **audio-only** via `yt-dlp` (no video processing overhead)
-2. 🧠 Feeds raw WAV to **Gemma 4 E4B** — which natively understands speech (no Whisper needed)
-3. 🔍 Gemma extracts **factual claims** and autonomously calls **Tavily search** per claim
-4. ✅❌⚠️ Returns a **per-claim verdict** with real source URLs
-5. 💬 Or — ask any **freeform QA question** about what was said
+The Hugging Face token must belong to an account that has already accepted the license for:
 
----
+- https://huggingface.co/google/gemma-4-E2B-it
 
-## Architecture
-
-```
-YouTube URL ──► yt-dlp (audio WAV) ──► Gemma 4 E4B ──► Tavily Search
-                                            │
-                              ┌─────────────┴──────────────┐
-                         Fact Check Mode              QA Mode
-                         (agentic loop,           (single-pass,
-                          tool calling)            no tools)
-                              │                        │
-                              └──────────┬─────────────┘
-                                         ▼
-                                   Gradio UI (ZeroGPU)
-```
-
----
-
-## Why this is novel
-
-| Old pipeline | This app |
-|---|---|
-| Whisper STT → Text LLM | Gemma 4 E4B processes raw audio natively |
-| Hallucinated fact checks | Tavily grounds every claim with web sources |
-| Separate models chained | Single model handles audio + reasoning + tool calling |
-| Complex RAG/vector stores | Gemma's 256K context replaces retrieval for audio |
-
----
-
-## Setup
-
-### Required Secrets (set in Space Settings → Secrets)
-
-| Secret | Where to get it |
-|---|---|
-| `TAVILY_API_KEY` | [app.tavily.com](https://app.tavily.com) — free tier: 1,000 searches/month |
-| `HF_TOKEN` | [huggingface.co/settings/tokens](https://huggingface.co/settings/tokens) — needed to access gated Gemma 4 model |
-
-### Accepting the Gemma 4 License
-
-Before deploying, visit [google/gemma-4-E2B-it](https://huggingface.co/google/gemma-4-E2B-it) on HuggingFace and accept the license agreement with your HF account.
-
----
-
-## Local development
+## Local run
 
 ```bash
-# 1. Clone
-git clone https://huggingface.co/spaces/YOUR_USERNAME/shorts-fact-checker
-cd shorts-fact-checker
-
-# 2. Install dependencies
 pip install -r requirements.txt
-
-# 3. Install system deps (Linux/Mac)
-apt-get install ffmpeg   # or: brew install ffmpeg
-
-# 4. Set environment variables
-export TAVILY_API_KEY="tvly-..."
-export HF_TOKEN="hf_..."
-
-# 5. Run
 python app.py
 ```
 
----
+You also need:
 
-## Limits & Notes
+- `ffmpeg` installed on the system
+- `HF_TOKEN` in the environment
+- `TAVILY_API_KEY` in the environment for fact-check mode
 
-- **Max audio duration:** 3 minutes (enforced to stay within ZeroGPU timeout)
-- **Agentic loop cap:** 3 tool call rounds (balances thoroughness vs. timeout risk)
-- **Tavily free tier:** 1,000 searches/month. Each fact-check uses 1–5 searches.
-- **Cold start:** ~60 seconds on ZeroGPU A100. Subsequent requests are fast.
-- **Audio format:** Always converted to WAV before model inference for compatibility.
+## Deploy to Spaces
 
----
+```bash
+python deploy_to_hf.py
+python add_secrets.py
+```
 
-## Tech Stack
+Optional environment variables for deployment:
 
-| Component | Library |
-|---|---|
-| LLM + Audio Understanding | `transformers` + `google/gemma-4-e4b-it` |
-| Audio Download | `yt-dlp` |
-| Web Search (Fact Grounding) | `tavily-python` |
-| UI & Deployment | `gradio` + `spaces` (ZeroGPU) |
-| Audio Processing | `ffmpeg` (system) |
-| Inference Backend | `torch` + `accelerate` |
+- `SPACE_NAME`
+- `SPACE_HARDWARE`
+- `SPACE_PRIVATE`
 
----
+## Notes
 
-## License
-
-Apache 2.0 — see [LICENSE](LICENSE).
-
-Model weights: [Gemma Terms of Use](https://ai.google.dev/gemma/terms).
+- Max audio duration is `180` seconds.
+- Uploaded MP3 and M4A files are normalized to WAV before processing.
+- Fact-check mode depends on Tavily. QA mode does not.

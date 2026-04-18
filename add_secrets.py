@@ -1,50 +1,38 @@
 #!/usr/bin/env python3
-"""Add secrets to Hugging Face Space"""
+"""Add required secrets to the Hugging Face Space."""
 
 import os
+
 from huggingface_hub import HfApi
 
-# Configuration
-SPACE_NAME = "youtube-shorts-fact-checker"
-HF_TOKEN = os.environ.get("HF_TOKEN")
-TAVILY_API_KEY = os.environ.get("TAVILY_API_KEY")
+SPACE_NAME = os.environ.get("SPACE_NAME", "youtube-shorts-fact-checker")
 
-def main():
-    if not HF_TOKEN:
-        print("❌ HF_TOKEN not set")
-        return
-    
-    api = HfApi(token=HF_TOKEN)
-    user_info = api.whoami()
-    username = user_info["name"]
+
+def require_env(name: str) -> str:
+    value = os.environ.get(name, "").strip()
+    if not value:
+        raise SystemExit(f"{name} is not set.")
+    return value
+
+
+def main() -> None:
+    hf_token = require_env("HF_TOKEN")
+    tavily_api_key = require_env("TAVILY_API_KEY")
+
+    api = HfApi(token=hf_token)
+    username = api.whoami()["name"]
     repo_id = f"{username}/{SPACE_NAME}"
-    
-    print(f"🔐 Adding secrets to {repo_id}...")
-    
-    try:
-        # Add TAVILY_API_KEY
-        api.add_space_secret(
-            repo_id=repo_id,
-            key="TAVILY_API_KEY",
-            value=TAVILY_API_KEY,
-            token=HF_TOKEN,
-        )
-        print("✅ Added TAVILY_API_KEY")
-        
-        # Add HF_TOKEN
-        api.add_space_secret(
-            repo_id=repo_id,
-            key="HF_TOKEN",
-            value=HF_TOKEN,
-            token=HF_TOKEN,
-        )
-        print("✅ Added HF_TOKEN")
-        
-        print(f"\n✨ All secrets added successfully!")
-        print(f"🌐 Your Space: https://huggingface.co/spaces/{repo_id}")
-        
-    except Exception as e:
-        print(f"❌ Error adding secrets: {e}")
+
+    api.add_space_secret(repo_id=repo_id, key="HF_TOKEN", value=hf_token, token=hf_token)
+    api.add_space_secret(
+        repo_id=repo_id,
+        key="TAVILY_API_KEY",
+        value=tavily_api_key,
+        token=hf_token,
+    )
+
+    print(f"Secrets added to https://huggingface.co/spaces/{repo_id}")
+
 
 if __name__ == "__main__":
     main()
