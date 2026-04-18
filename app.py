@@ -12,14 +12,33 @@ import tempfile
 import traceback
 import wave
 
+import huggingface_hub
+
+if not hasattr(huggingface_hub, "HfFolder"):
+    class _CompatHfFolder:
+        """Compatibility shim for Gradio versions that still import HfFolder."""
+
+        @staticmethod
+        def get_token():
+            return os.environ.get("HF_TOKEN") or huggingface_hub.get_token()
+
+        @staticmethod
+        def save_token(token: str) -> None:
+            os.environ["HF_TOKEN"] = token
+
+        @staticmethod
+        def delete_token() -> None:
+            os.environ.pop("HF_TOKEN", None)
+
+    huggingface_hub.HfFolder = _CompatHfFolder
+
 import gradio as gr
 import spaces
 import torch
 import yt_dlp
 from dotenv import load_dotenv
 from tavily import TavilyClient
-from transformers import AutoProcessor
-from transformers.models.gemma4 import Gemma4ForConditionalGeneration
+from transformers import AutoModelForMultimodalLM, AutoProcessor
 
 load_dotenv()
 
@@ -37,7 +56,7 @@ GENERATE_MAX_TOKENS = 768
 
 logger.info("Loading Gemma 4 E2B for ZeroGPU Spaces.")
 processor = AutoProcessor.from_pretrained(MODEL_ID)
-model = Gemma4ForConditionalGeneration.from_pretrained(
+model = AutoModelForMultimodalLM.from_pretrained(
     MODEL_ID,
     torch_dtype=torch.bfloat16,
     device_map="auto",
