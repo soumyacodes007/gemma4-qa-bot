@@ -18,7 +18,8 @@ import torch
 import yt_dlp
 from dotenv import load_dotenv
 from tavily import TavilyClient
-from transformers import AutoProcessor, Gemma4ForConditionalGeneration
+from transformers import AutoProcessor
+from transformers.models.gemma4 import Gemma4ForConditionalGeneration
 
 load_dotenv()
 
