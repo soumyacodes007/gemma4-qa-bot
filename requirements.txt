@@ -12,3 +12,4 @@ protobuf
 python-dotenv
 audioop-lts
 huggingface-hub>=1.5.0,<2.0.0
+pydantic==2.10.6
