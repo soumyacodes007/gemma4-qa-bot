@@ -1,4 +1,4 @@
-git+https://github.com/huggingface/transformers
+transformers==4.57.6
 torch>=2.2.0
 torchvision>=0.17.0
 gradio==4.44.1
