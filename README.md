@@ -2,17 +2,13 @@
 title: YouTube Shorts Audio QA + Fact Checker
 emoji: 🎙
 colorFrom: purple
-colorTo: cyan
+colorTo: blue
 sdk: gradio
-sdk_version: "4.40.0"
+sdk_version: "4.44.1"
 app_file: app.py
 pinned: true
 license: apache-2.0
-hardware: zero-gpu
-secrets:
-  - TAVILY_API_KEY
-  - HF_TOKEN
-short_description: Fact-check YouTube Shorts using Gemma 4 E4B native audio + Tavily
+short_description: Fact-check YouTube Shorts with Gemma 4 + Tavily
 tags:
   - gemma
   - audio
@@ -26,7 +22,31 @@ tags:
 
 # 🎙 YouTube Shorts Audio QA + Fact Checker
 
-> **First open-source demo** combining **Gemma 4 E4B native audio understanding** + **agentic Tavily tool calling** in a single, no-ASR pipeline.
+> **First open-source demo** combining **Gemma 4 E2B native audio understanding** + **agentic Tavily tool calling** in a single, no-ASR pipeline.
+
+---
+
+## What this does
+
+Paste a YouTube Shorts URL (or upload an audio file). The app:
+
+1. 📥 Downloads **audio-only** via `yt-dlp` (no video processing overhead)
+2. 🧠 Feeds raw WAV to **Gemma 4 E2B** — which natively understands speech (no Whisper needed)
+3. 🔍 Gemma extracts **factual claims** and autonomously calls **Tavily search** per claim
+4. ✅❌⚠️ Returns a **per-claim verdict** with real source URLs
+5. 💬 Or — ask any **freeform QA question** about what was said
+
+---
+
+## Why Gemma 4 E2B?
+
+**Gemma 4 E2B** (2 billion parameters) is the smaller, more efficient version that:
+- ✅ Runs on **CPU basic (free tier)** on Hugging Face Spaces
+- ✅ Still supports **native audio understanding**
+- ✅ Has **tool calling** capabilities
+- ✅ Perfect for demos and prototypes
+
+For production with higher traffic, consider upgrading to **Gemma 4 E4B** (4B) with GPU.
 
 ---
 
@@ -81,7 +101,7 @@ YouTube URL ──► yt-dlp (audio WAV) ──► Gemma 4 E4B ──► Tavily 
 
 ### Accepting the Gemma 4 License
 
-Before deploying, visit [google/gemma-4-e4b-it](https://huggingface.co/google/gemma-4-e4b-it) on HuggingFace and accept the license agreement with your HF account.
+Before deploying, visit [google/gemma-4-E2B-it](https://huggingface.co/google/gemma-4-E2B-it) on HuggingFace and accept the license agreement with your HF account.
 
 ---
 

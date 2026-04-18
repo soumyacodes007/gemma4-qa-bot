@@ -1,6 +1,6 @@
 transformers>=4.51.0
 torch>=2.2.0
-gradio>=4.40.0
+gradio==4.44.1
 spaces>=0.28.0
 yt-dlp>=2024.11.0
 tavily-python>=0.3.0
@@ -8,3 +8,5 @@ accelerate>=0.30.0
 sentencepiece
 protobuf
 python-dotenv
+audioop-lts
+huggingface-hub>=0.26.0,<1.0.0
